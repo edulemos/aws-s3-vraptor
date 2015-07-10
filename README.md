@@ -10,5 +10,5 @@ Exemplo de como conectar no Amazon S3
  
 ### Obs:
  
- * Importar com Mavem Project
+ * Importar como Mavem Project
  * Alterar o arquivo: src\main\resources\AwsCredentials com as credenciais da amazom
