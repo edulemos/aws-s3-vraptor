@@ -8,4 +8,7 @@
   <listener>
     <listener-class>org.jboss.weld.environment.servlet.Listener</listener-class>
   </listener>
+  <error-page>
+    <location>/error.jsp</location>
+</error-page>
 </web-app>
