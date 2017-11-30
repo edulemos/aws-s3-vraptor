@@ -10,9 +10,12 @@
 <link href="<c:url value="/css/bootstrap.min.css"/>" rel="stylesheet" type="text/css" media="screen" />
 <link href="<c:url value="/css/style.css"/>" rel="stylesheet" type="text/css" media="screen" />
 <link href="<c:url value="/css/jquery.toast.min.css"/>" rel="stylesheet" type="text/css" media="screen" />
+<link href="<c:url value="/css/jquery.loading.min.css"/>" rel="stylesheet" type="text/css" media="screen" />
+
 <script src="<c:url value="/js/jquery.min.js"/>"></script>
 <script src="<c:url value="/js/bootstrap.min.js"/>"></script>
 <script src="<c:url value="/js/jquery.toast.min.js"/>"></script>
+<script src="<c:url value="/js/jquery.loading.min.js"/>"></script>
 <script src="<c:url value="/js/script.js"/>"></script>
 </head>
 <body>
@@ -28,7 +31,7 @@
 						class="icon-bar"></span> <span class="icon-bar"></span> <span
 						class="icon-bar"></span>
 				</button>
-				<a class="navbar-brand" href="${linkTo[S3Controller].index()}">S3 CLIENT</a>
+				<a class="navbar-brand loader" href="${linkTo[S3Controller].index()}">S3 CLIENT</a>
 			</div>
 
 			<div class="collapse navbar-collapse">

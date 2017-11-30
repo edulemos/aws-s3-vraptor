@@ -5,11 +5,14 @@
 </div>
 
 <div class="panel-body div-heigth">
+
 	<c:forEach items="${bucketFiles}" var="objectSummary" varStatus="loop">
+	
 		<li class="list-group-item text-left">${objectSummary.key} <span id="id_${loop.index}"> </span> 
 			<div style="float: right;">
-				<a href="${linkTo[S3Controller].download(objectSummary.key)}" target="_blank"><span class="glyphicon glyphicon-download"></span></a>
-				<a href="${linkTo[S3Controller].deleteFile(objectSummary.key)}" target="_blank" onclick="return confirm('Confirm file ${objectSummary.key} deletion?')"><span class="glyphicon glyphicon-trash"></span></a>
+				<a href="${linkTo[S3Controller].download(objectSummary.key)}" title="download" target="_blank"><span class="glyphicon glyphicon-download"></span></a>&nbsp;
+<%-- 				<a href="${linkTo[S3Controller].deleteFile(objectSummary.key)}" onclick="return confirm('Confirm file ${objectSummary.key} deletion?')" title="delete" class="loader"><span class="glyphicon glyphicon-trash"></span></a> --%>
+				<a href="${linkTo[S3Controller].deleteFile(objectSummary.key)}" onclick="return fileDeleteConfirm('${objectSummary.key} ')" title="delete"><span class="glyphicon glyphicon-trash"></span></a>
 			</div>
 		</li>
 		

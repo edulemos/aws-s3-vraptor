@@ -15,11 +15,11 @@
 				<li class="list-group-item text-left">
 					${bucket.name}
 					<div style="float: right;">
-				     <a href="${linkTo[S3Controller].listBucketFiles(bucket.name)}"><span class="glyphicon glyphicon-search" title="view" ></span></a>
+				     <a href="${linkTo[S3Controller].listBucketFiles(bucket.name)}"><span class="loader glyphicon glyphicon-search" title="view" ></span></a>
 				     	&nbsp;
-					 <a href="${linkTo[S3Controller].upload()}"> <span class="glyphicon glyphicon-upload" title="upload"></span></a>
+					 <a href="${linkTo[S3Controller].upload(bucket.name)}"> <span class="loader  glyphicon glyphicon-upload" title="upload"></span></a>
 					 	&nbsp;
-	 			     <a href="${linkTo[S3Controller].deleteBucket(bucket.name)}"  onclick="return confirm('Confirm deletion the bucket ${bucket.name}? \n \n ALL FILES WILL BE REMOVED!!!')"><span class="glyphicon glyphicon-trash"></span></a>					 
+	 			     <a href="${linkTo[S3Controller].deleteBucket(bucket.name)}"  onclick="return bucketDeleteConfirm('${bucket.name}')"  title="delete" ><span class="glyphicon glyphicon-trash"></span></a>					 
 					 </div>
 					</li>
 					

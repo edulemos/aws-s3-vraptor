@@ -15,7 +15,7 @@
 
 		<div class="row">
 			<div class="form-group col-md-6">
-				<button type="submit" class="btn btn-primary form-control">Submit</button>
+				<button type="submit" class="btn btn-primary form-control" id="bt-submit">Submit</button>
 			</div>
 		</div>
 

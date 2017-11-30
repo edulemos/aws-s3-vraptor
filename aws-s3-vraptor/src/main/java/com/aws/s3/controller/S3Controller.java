@@ -1,6 +1,5 @@
 package com.aws.s3.controller;
 
-import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -28,10 +27,6 @@ public class S3Controller {
 
 	@Inject
 	private S3Service service;
-
-	@Path("/error")
-	public void error() {		
-	}
 	
 	@Path("/")
 	public void index() {
@@ -49,7 +44,9 @@ public class S3Controller {
 		result.redirectTo(S3Controller.class).index();
 	}
 
-	public void upload() {
+	@Path("/upload/{bucketName}")
+	public void upload(String bucketName) {
+		session.setBucketName(bucketName);
 		result.include("bucketsList", session.getBuckets());
 		result.include("bucketName", session.getBucketName());
 	}
@@ -66,59 +63,63 @@ public class S3Controller {
 			result.include("msg", "Bucket save successful!");
 			result.redirectTo(S3Controller.class).index();
 		} catch (Exception e) {
-			result.include("msgErro", e.getMessage());
+			result.include("msgErro", erroMsg(e));
 			result.redirectTo(S3Controller.class).bucketForm();
-		}		
+		}
 	}
-	
+
 	@Path("/deletebucket/{bucketName}")
 	public void deleteBucket(String bucketName) {
 		try {
-			service.deleteBucket(bucketName);		
+			service.deleteBucket(bucketName);
 			session.setBuckets(service.getBuckets());
 			result.include("msg", "Bucket delete successful!");
-			result.redirectTo(S3Controller.class).listBucketFiles(session.getBucketName());
+			result.redirectTo(S3Controller.class).index();
 		} catch (Exception e) {
-			result.include("msgErro", e.getMessage());
-			result.redirectTo(S3Controller.class).bucketForm();
-		}		
+			result.include("msgErro", erroMsg(e));
+			result.redirectTo(S3Controller.class).index();
+		}
 	}
 
 	@Path("/uploadFile")
 	public void uploadFile(UploadedFile file) {
 		try {
-			service.uploadFile(session.getBucketName(), file);			
+			service.uploadFile(session.getBucketName(), file);
 			result.include("msg", "File Upload successful");
 			result.redirectTo(S3Controller.class).listBucketFiles(session.getBucketName());
 		} catch (Exception e) {
-			result.include("msgErro", e.getMessage());
-			result.redirectTo(S3Controller.class).upload();
-		}		
-	}
-	
-	@Path("/download/{key}")
-	public Download download(String key) {
-		try {			
-			String contentType = Files.probeContentType(Paths.get(key));
-		    InputStream stream = service.download(session.getBucketName(),key);
-		    return new InputStreamDownload(stream, contentType, key);		    
-		} catch (Exception e) {
-			result.include("msgErro", e.getMessage());	
-			result.redirectTo(S3Controller.class).listBucketFiles(session.getBucketName());
-			return null;		
+			result.include("msgErro", erroMsg(e));
+			result.redirectTo(S3Controller.class).upload(session.getBucketName());
 		}
 	}
-	
+
+	@Path("/download/{key}")
+	public Download download(String key) {
+		try {
+			String contentType = Files.probeContentType(Paths.get(key));
+			InputStream stream = service.download(session.getBucketName(), key);
+			return new InputStreamDownload(stream, contentType, key);
+		} catch (Exception e) {
+			result.include("msgErro", erroMsg(e));
+			result.redirectTo(S3Controller.class).listBucketFiles(session.getBucketName());
+			return null;
+		}
+	}
+
 	@Path("/deleteFile/{key}")
 	public void deleteFile(String key) {
-		try {			
-			service.deleteFile(session.getBucketName(),key);
+		try {
+			service.deleteFile(session.getBucketName(), key);
 			result.include("msg", "File delete successful!");
 			result.redirectTo(S3Controller.class).listBucketFiles(session.getBucketName());
 		} catch (Exception e) {
-			result.include("msgErro", e.getMessage());	
+			result.include("msgErro", erroMsg(e));
 			result.redirectTo(S3Controller.class).listBucketFiles(session.getBucketName());
 		}
+	}
+
+	private String erroMsg(Exception e) {
+		return e.getMessage().replaceAll("\n", "");
 	}
 
 }

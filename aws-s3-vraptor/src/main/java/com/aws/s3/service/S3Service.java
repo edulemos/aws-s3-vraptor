@@ -1,10 +1,7 @@
 package com.aws.s3.service;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -12,19 +9,17 @@ import java.util.Properties;
 import org.apache.commons.io.IOUtils;
 
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.HttpMethod;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.Bucket;
-import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ListVersionsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.model.S3VersionSummary;
@@ -44,16 +39,15 @@ public class S3Service {
 			properties.load(this.getClass().getResourceAsStream("/aws.properties"));
 			String acessKey = properties.getProperty("acessKey");
 			String secretKey = properties.getProperty("secretKey");
+			String region = properties.getProperty("region");
 			credentials = new BasicAWSCredentials(acessKey, secretKey);
 			s3 = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(credentials))
-					.withRegion(Regions.SA_EAST_1).build();
+					.withRegion(region).build();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}catch (Exception e) {
 			e.printStackTrace();
-		}
-
-	
+		}	
 	}
 
 	public List<Bucket> getBuckets() {
@@ -80,7 +74,12 @@ public class S3Service {
 	
 	public void uploadFile(String bucketName, UploadedFile uploadedFile) throws IOException {
 		try {			
-			s3.putObject(bucketName, uploadedFile.getFileName(), uploadedFile.getContentType());
+			
+			Long contentLength = Long.valueOf(IOUtils.toByteArray(uploadedFile.getFile()).length);
+			ObjectMetadata metadata = new ObjectMetadata();
+			metadata.setContentLength(contentLength);	
+			s3.putObject(bucketName, uploadedFile.getFileName(), uploadedFile.getFile(), metadata);
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -98,7 +97,6 @@ public class S3Service {
 	
 	public void  deleteBucket(String bucketName){
 		try {
-            System.out.println(" - removing objects from bucket");
             ObjectListing object_listing = s3.listObjects(bucketName);
             while (true) {
                 for (Iterator<?> iterator =
@@ -107,8 +105,6 @@ public class S3Service {
                     S3ObjectSummary summary = (S3ObjectSummary)iterator.next();
                     s3.deleteObject(bucketName, summary.getKey());
                 }
-
-                // more object_listing to retrieve?
                 if (object_listing.isTruncated()) {
                     object_listing = s3.listNextBatchOfObjects(object_listing);
                 } else {
@@ -116,7 +112,6 @@ public class S3Service {
                 }
             };
 
-            System.out.println(" - removing versions from bucket");
             VersionListing version_listing = s3.listVersions(
                     new ListVersionsRequest().withBucketName(bucketName));
             while (true) {
@@ -143,30 +138,7 @@ public class S3Service {
         }
 	}
 	
-	public static File stream2file (UploadedFile file) throws IOException {
-        final File tempFile = File.createTempFile(file.getFileName().split("\\.")[0], "."+file.getFileName().split("\\.")[1]);
-        tempFile.deleteOnExit();
-        try (FileOutputStream out = new FileOutputStream(tempFile)) {
-            IOUtils.copy(file.getFile(), out);
-        }
-        return tempFile;
-    }
 	
 	
-	public URL getUrl(String bucket, String key){
-		java.util.Date expiration = new java.util.Date();
-		long msec = expiration.getTime();
-		msec += 1000 * 60 * 60; // 1 hour.
-		expiration.setTime(msec);
-		GeneratePresignedUrlRequest generatePresignedUrlRequest = 
-		              new GeneratePresignedUrlRequest(bucket, key);
-		generatePresignedUrlRequest.setMethod(HttpMethod.GET); // Default.
-		generatePresignedUrlRequest.setExpiration(expiration);
-		             
-		URL s = s3.generatePresignedUrl(generatePresignedUrlRequest); 
-		return s;
-		
-	}
-
 
 }
