@@ -9,8 +9,13 @@
 	<c:forEach items="${bucketFiles}" var="objectSummary" varStatus="loop">
 	
 		<li class="list-group-item text-left">${objectSummary.key} <span id="id_${loop.index}"> </span> 
-			<div style="float: right;">
+			<div style="float: right;">			
+			<c:if test="${not fn:endsWith(objectSummary.key, '/')}">
 				<a href="${linkTo[S3Controller].download(objectSummary.key)}" title="download" target="_blank"><span class="glyphicon glyphicon-download"></span></a>&nbsp;
+    		</c:if>
+    		<c:if test="${fn:endsWith(objectSummary.key, '/')}">
+				<span class="glyphicon glyphicon-download" style="color:gray" title="only folder"></span>&nbsp;
+    		</c:if>
 				<a href="${linkTo[S3Controller].deleteFile(objectSummary.key)}" onclick="return fileDeleteConfirm('${objectSummary.key} ')" title="delete"><span class="glyphicon glyphicon-trash"></span></a>
 			</div>
 		</li>
