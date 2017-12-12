@@ -96,6 +96,7 @@ public class S3Controller {
 	@Path("/download/{key}")
 	public Download download(String key) {
 		try {
+			key = key.replace("*", "/");
 			String contentType = Files.probeContentType(Paths.get(key));
 			InputStream stream = service.download(session.getBucketName(), key);
 			return new InputStreamDownload(stream, contentType, key);
